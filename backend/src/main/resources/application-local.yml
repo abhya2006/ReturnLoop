@@ -1,0 +1,42 @@
+# Local single-machine profile. The file-backed database survives app restarts.
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:file:./data/returnloop;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+  kafka:
+    listener:
+      auto-startup: false
+
+returnloop:
+  seed:
+    enabled: true
+  messaging:
+    kafka:
+      enabled: false
+
+management:
+  health:
+    redis:
+      enabled: false
+    kafka:
+      enabled: false

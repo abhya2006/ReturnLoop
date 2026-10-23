@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: returnloop
+      POSTGRES_USER: ${DB_USERNAME:?Set DB_USERNAME in .env.production}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.production}
+    volumes:
+      - returnloop-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d returnloop"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [data]
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - returnloop-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [data]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SERVER_PORT: 8080
+      DB_URL: jdbc:postgresql://postgres:5432/returnloop
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME in .env.production}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.production}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RETURNLOOP_JWT_SECRET: ${RETURNLOOP_JWT_SECRET:?Set a strong RETURNLOOP_JWT_SECRET in .env.production}
+      RETURNLOOP_CORS_ORIGINS: ${RETURNLOOP_CORS_ORIGINS:?Set your HTTPS site origin in .env.production}
+      RETURNLOOP_SEED_ENABLED: "false"
+      RETURNLOOP_KAFKA_ENABLED: "false"
+      SMTP_HOST: ${SMTP_HOST:?Set SMTP_HOST in .env.production}
+      SMTP_PORT: ${SMTP_PORT:?Set SMTP_PORT in .env.production}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMTP_USERNAME: ${SMTP_USERNAME:?Set SMTP_USERNAME in .env.production}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?Set SMTP_PASSWORD in .env.production}
+      RETURNLOOP_MAIL_FROM: ${RETURNLOOP_MAIL_FROM:?Set RETURNLOOP_MAIL_FROM in .env.production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [data, web]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "${HTTP_PORT:-8081}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks: [web]
+
+volumes:
+  returnloop-postgres:
+  returnloop-redis:
+
+networks:
+  data:
+    internal: true
+  web:

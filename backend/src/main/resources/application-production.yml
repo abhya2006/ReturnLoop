@@ -1,0 +1,31 @@
+# Production profile: require deployment-specific credentials and keep demo data out.
+spring:
+  config:
+    activate:
+      on-profile: production
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS}
+
+returnloop:
+  security:
+    jwt:
+      secret: ${RETURNLOOP_JWT_SECRET}
+    cors:
+      allowed-origins: ${RETURNLOOP_CORS_ORIGINS}
+  seed:
+    enabled: false
+  auth:
+    mail-from: ${RETURNLOOP_MAIL_FROM}

@@ -1,0 +1,121 @@
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  application:
+    name: returnloop
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS:false}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/returnloop}
+    username: ${DB_USERNAME:returnloop}
+    password: ${DB_PASSWORD:returnloop}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 20000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+        order_inserts: true
+        order_updates: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: returnloop
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+    listener:
+      ack-mode: record
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jackson:
+    default-property-inclusion: always
+
+returnloop:
+  security:
+    jwt:
+      secret: ${RETURNLOOP_JWT_SECRET:change-me-in-production-to-a-32-byte-minimum-secret-value}
+      access-token-ttl: ${RETURNLOOP_JWT_TTL:PT8H}
+    cors:
+      allowed-origins: ${RETURNLOOP_CORS_ORIGINS:http://localhost:5173,http://localhost:4173}
+  messaging:
+    kafka:
+      enabled: ${RETURNLOOP_KAFKA_ENABLED:false}
+    topic: ${RETURNLOOP_KAFKA_TOPIC:returnloop.events}
+  recovery:
+    strategy: ${RETURNLOOP_RECOVERY_STRATEGY:rule-based}
+  map:
+    provider: ${RETURNLOOP_MAP_PROVIDER:simulated}
+    api-key: ${RETURNLOOP_MAP_API_KEY:}
+  seed:
+    enabled: ${RETURNLOOP_SEED_ENABLED:true}
+    demo-password: ${RETURNLOOP_DEMO_PASSWORD:ReturnLoop!2026}
+  auth:
+    mail-from: ${RETURNLOOP_MAIL_FROM:no-reply@returnloop.example}
+    google:
+      client-id: ${RETURNLOOP_GOOGLE_CLIENT_ID:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    kafka:
+      enabled: false
+  metrics:
+    tags:
+      application: returnloop
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %-5level [%thread] %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.returnloop: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs

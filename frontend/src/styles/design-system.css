@@ -1,0 +1,472 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ReturnLoop design system
+   Surfaces, tables, skeletons and the auth/login shell. Colours come from the
+   tokens in index.css so everything re-skins with the light/dark theme.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+  /* ── App backdrop ────────────────────────────────────────────────────────── */
+
+  .app-backdrop {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .app-backdrop::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 900px 620px at 18% -8%, rgb(var(--cerulean) / 0.16), transparent 62%),
+      radial-gradient(ellipse 780px 560px at 92% 4%, rgb(var(--rose) / 0.10), transparent 60%),
+      radial-gradient(ellipse 700px 520px at 62% 96%, rgb(var(--violet) / 0.09), transparent 62%);
+  }
+
+  /* ── Surfaces ────────────────────────────────────────────────────────────── */
+
+  .panel {
+    position: relative;
+    border-radius: 18px;
+    border: 1px solid rgb(var(--edge));
+    background-color: rgb(var(--surface-base));
+    background-image: linear-gradient(
+      165deg,
+      rgb(var(--surface-elevated) / 0.92) 0%,
+      rgb(var(--surface-base)) 58%,
+      rgb(var(--surface-elevated) / 0.6) 100%
+    );
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.04) inset,
+      0 18px 40px -28px rgb(0 0 0 / 0.85);
+  }
+
+  .panel-elevated {
+    position: relative;
+    border-radius: 18px;
+    border: 1px solid rgb(var(--edge-strong));
+    background-color: rgb(var(--surface-elevated));
+    background-image: linear-gradient(
+      160deg,
+      rgb(var(--surface-hover) / 0.9) 0%,
+      rgb(var(--surface-elevated)) 62%
+    );
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+      0 28px 70px -40px rgb(0 0 0 / 0.9);
+  }
+
+  :root[data-theme='light'] .panel,
+  :root[data-theme='light'] .panel-elevated {
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.9) inset,
+      0 14px 34px -26px rgb(30 52 90 / 0.34);
+  }
+
+  /* ── Data tables ─────────────────────────────────────────────────────────── */
+
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+  }
+
+  .data-table thead th {
+    position: relative;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgb(var(--ink-muted));
+    background: rgb(var(--surface-elevated));
+    border-bottom: 1px solid rgb(var(--edge));
+  }
+
+  .data-table tbody td {
+    padding: 11px 16px;
+    color: rgb(var(--ink-secondary));
+    border-bottom: 1px solid rgb(var(--edge) / 0.55);
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr {
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: rgb(var(--surface-hover) / 0.65);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table tbody tr:hover td:first-child {
+    box-shadow: inset 2px 0 0 rgb(var(--cerulean));
+  }
+
+  /* ── Skeletons ───────────────────────────────────────────────────────────── */
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgb(var(--surface-hover));
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--ink-primary) / 0.07) 45%,
+      rgb(var(--ink-primary) / 0.12) 50%,
+      rgb(var(--ink-primary) / 0.07) 55%,
+      transparent 100%
+    );
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
+  }
+
+  :root[data-theme='light'] .skeleton::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(30 52 90 / 0.06) 45%,
+      rgb(30 52 90 / 0.11) 50%,
+      rgb(30 52 90 / 0.06) 55%,
+      transparent 100%
+    );
+  }
+
+  /* ── Texture ─────────────────────────────────────────────────────────────── */
+
+  .grid-noise {
+    background-image:
+      linear-gradient(to right, rgb(var(--edge) / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--edge) / 0.55) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 20%, transparent 78%);
+    opacity: 0.4;
+  }
+
+  /* ── Auth pages ──────────────────────────────────────────────────────────── */
+
+  .auth-page {
+    background-image:
+      radial-gradient(ellipse 1000px 700px at 20% -10%, rgb(var(--cerulean) / 0.20), transparent 62%),
+      radial-gradient(ellipse 820px 600px at 88% 8%, rgb(var(--rose) / 0.14), transparent 60%);
+  }
+
+  .auth-card {
+    position: relative;
+    background: rgb(var(--surface-base) / 0.86);
+    backdrop-filter: blur(20px) saturate(1.15);
+    border: 1px solid rgb(var(--edge));
+  }
+
+  .auth-glow {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    filter: blur(90px);
+    background: rgb(var(--cerulean) / 0.22);
+    pointer-events: none;
+  }
+
+  .auth-glow-rose {
+    background: rgb(var(--rose) / 0.18);
+  }
+
+  .auth-input {
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .auth-input:focus-within {
+    box-shadow: 0 0 0 3px rgb(var(--cerulean) / 0.16);
+  }
+
+  .auth-input-icon {
+    transition: color 180ms ease;
+  }
+
+  .auth-input:focus-within .auth-input-icon {
+    color: rgb(var(--cerulean));
+  }
+
+  /* ── Login story panel ───────────────────────────────────────────────────── */
+
+  .login-layout {
+    animation: fade-rise 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .login-story {
+    isolation: isolate;
+    border-color: rgb(var(--edge));
+    background:
+      linear-gradient(160deg, rgb(var(--surface-elevated) / 0.96) 0%, rgb(var(--surface-base) / 0.94) 52%, rgb(var(--cerulean) / 0.10) 100%);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+      0 40px 90px -50px rgb(0 0 0 / 0.95);
+  }
+
+  :root[data-theme='light'] .login-story {
+    background:
+      linear-gradient(160deg, rgb(255 255 255 / 0.98) 0%, rgb(246 251 255 / 0.96) 52%, rgb(0 110 210 / 0.09) 100%);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.95) inset,
+      0 36px 80px -52px rgb(30 52 90 / 0.5);
+  }
+
+  .login-story::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgb(var(--edge) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--edge) / 0.5) 1px, transparent 1px);
+    background-size: 54px 54px;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 100%, #000 10%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 100%, #000 10%, transparent 80%);
+    opacity: 0.5;
+  }
+
+  .login-story-orb {
+    position: absolute;
+    z-index: -1;
+    width: 420px;
+    height: 420px;
+    right: -140px;
+    top: -160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(var(--cerulean) / 0.34) 0%, rgb(var(--violet) / 0.16) 42%, transparent 68%);
+    filter: blur(48px);
+    animation: orb-breathe 12s ease-in-out infinite;
+  }
+
+  .login-story-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 14px;
+    border: 1px solid rgb(var(--edge));
+    background: rgb(var(--surface-base) / 0.62);
+    padding: 12px;
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 240ms ease,
+      background-color 240ms ease, box-shadow 240ms ease;
+    backdrop-filter: blur(8px);
+  }
+
+  .login-story-feature:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--cerulean) / 0.5);
+    background: rgb(var(--surface-base) / 0.9);
+    box-shadow: 0 18px 36px -26px rgb(var(--cerulean) / 0.8);
+  }
+
+  .login-story-feature > svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: rgb(var(--cerulean-light));
+  }
+
+  .login-story-feature span {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .login-story-feature b {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: rgb(var(--ink-primary));
+  }
+
+  .login-story-feature small {
+    font-size: 10.5px;
+    line-height: 1.4;
+    color: rgb(var(--ink-muted));
+  }
+
+  .login-story-foot b {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(var(--ink-primary));
+  }
+
+  .login-story-foot small {
+    display: block;
+    font-size: 10.5px;
+    color: rgb(var(--ink-muted));
+  }
+
+  .login-story-pulse {
+    position: relative;
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgb(var(--ok));
+    box-shadow: 0 0 10px 1px rgb(var(--ok) / 0.8);
+  }
+
+  .login-story-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid rgb(var(--ok) / 0.6);
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+
+  /* ── Login loop animation ────────────────────────────────────────────────── */
+
+  .login-animated-loop {
+    position: absolute;
+    z-index: 0;
+    right: -30px;
+    bottom: 76px;
+    width: 200px;
+    height: 200px;
+    pointer-events: none;
+    perspective: 700px;
+  }
+
+  .login-loop-track {
+    position: absolute;
+    inset: 18px;
+    border-radius: 50%;
+    border: 1px dashed rgb(var(--cerulean) / 0.4);
+    box-shadow: 0 0 34px -8px rgb(var(--cerulean) / 0.55) inset;
+    animation: loop-spin 26s linear infinite;
+  }
+
+  .login-loop-track::before {
+    content: '';
+    position: absolute;
+    inset: 34px;
+    border-radius: 50%;
+    border: 1px solid rgb(var(--rose) / 0.32);
+    animation: loop-spin 18s linear infinite reverse;
+  }
+
+  .login-loop-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgb(var(--cerulean-light)), rgb(var(--violet)) 62%, rgb(var(--rose)));
+    box-shadow:
+      0 0 30px rgb(var(--cerulean) / 0.6),
+      0 0 60px rgb(var(--rose) / 0.28),
+      inset 0 1px 0 rgb(255 255 255 / 0.4);
+    animation: core-breathe 4.6s ease-in-out infinite;
+  }
+
+  .login-loop-parcel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 26px;
+    margin: -13px 0 0 -17px;
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(150deg, rgb(var(--rose-light)), rgb(var(--rose)));
+    box-shadow: 0 0 16px rgb(var(--rose) / 0.7);
+    animation: loop-orbit 14s linear infinite;
+  }
+
+  .login-loop-beam {
+    position: absolute;
+    inset: 40px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgb(var(--cerulean) / 0.22) 46deg, transparent 92deg);
+    animation: loop-spin 8s linear infinite;
+    filter: blur(5px);
+  }
+
+  /* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after,
+    .login-story-orb,
+    .login-story-pulse::after,
+    .login-loop-track,
+    .login-loop-track::before,
+    .login-loop-core,
+    .login-loop-parcel,
+    .login-loop-beam,
+    .login-layout {
+      animation: none !important;
+    }
+  }
+}
+
+/* ── Keyframes (global scope, shared with the motion layer) ───────────────── */
+
+@keyframes skeleton-sweep {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.9; }
+  50%      { transform: scale(1.12) translate(-10px, 12px); opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.85); opacity: 0.85; }
+  80%  { transform: scale(1.9); opacity: 0; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes loop-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes core-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.09); }
+}
+
+@keyframes loop-orbit {
+  from { transform: rotate(0deg) translateX(78px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(78px) rotate(-360deg); }
+}
+
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

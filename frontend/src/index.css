@@ -1,0 +1,118 @@
+/* Design system + motion live in their own files so the token layer below
+   stays the single source of truth for colour. @import must precede other
+   rules; both files register inside @layer components. */
+@import './styles/design-system.css';
+@import './styles/motion.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --jet: 8 10 16;
+    --cerulean: 0 140 255;
+    --cerulean-light: 80 190 255;
+    --cerulean-dark: 0 100 200;
+    --cerulean-muted: 12 45 85;
+    --rose: 255 45 149;
+    --rose-light: 255 110 190;
+    --rose-dark: 210 30 120;
+    --cyan: 0 230 255;
+    --violet: 140 90 255;
+    --surface-base: 12 16 26;
+    --surface-elevated: 18 23 36;
+    --surface-hover: 24 31 48;
+    --edge: 36 48 72;
+    --edge-strong: 52 68 96;
+    --ink-primary: 248 250 255;
+    --ink-secondary: 176 188 214;
+    --ink-muted: 120 136 168;
+    --ok: 0 255 196;
+    --warn: 255 190 92;
+    --danger: 255 72 110;
+    --chart-grid: 40 52 78;
+    --chart-axis: 120 136 168;
+    --chart-text: 176 188 214;
+    --chart-tooltip: 18 23 36;
+    --chart-tooltip-edge: 52 68 96;
+    --chart-tooltip-text: 248 250 255;
+    --chart-tooltip-muted: 176 188 214;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+    --jet: 246 249 252;
+    --cerulean: 0 110 210;
+    --cerulean-light: 0 140 235;
+    --cerulean-dark: 0 80 170;
+    --cerulean-muted: 220 235 255;
+    --rose: 230 40 130;
+    --rose-light: 245 70 150;
+    --rose-dark: 200 30 110;
+    --cyan: 0 150 210;
+    --violet: 110 70 230;
+    --surface-base: 255 255 255;
+    --surface-elevated: 248 251 255;
+    --surface-hover: 240 246 255;
+    --edge: 206 218 240;
+    --edge-strong: 178 196 230;
+    --ink-primary: 16 26 48;
+    --ink-secondary: 48 64 92;
+    --ink-muted: 78 96 130;
+    --ok: 16 185 129;
+    --warn: 245 158 11;
+    --danger: 239 68 68;
+    --chart-grid: 214 226 248;
+    --chart-axis: 96 116 148;
+    --chart-text: 48 64 92;
+    --chart-tooltip: 255 255 255;
+    --chart-tooltip-edge: 206 218 240;
+    --chart-tooltip-text: 16 26 48;
+    --chart-tooltip-muted: 48 64 92;
+  }
+
+  html, body, #root { height: 100%; }
+
+  body {
+    @apply bg-jet text-ink-primary font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-image:
+      radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(0, 140, 255, 0.22), transparent 65%),
+      radial-gradient(ellipse 1000px 700px at 85% 15%, rgba(255, 45, 149, 0.16), transparent 55%),
+      radial-gradient(ellipse 800px 600px at 15% 40%, rgba(140, 90, 255, 0.14), transparent 60%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  :root[data-theme='light'] body {
+    background-image:
+      radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(0, 110, 210, 0.12), transparent 65%),
+      radial-gradient(ellipse 1000px 700px at 85% 15%, rgba(230, 40, 130, 0.09), transparent 55%),
+      radial-gradient(ellipse 800px 600px at 15% 40%, rgba(110, 70, 230, 0.08), transparent 60%);
+  }
+
+  *:focus-visible { @apply outline-none ring-2 ring-cyan ring-offset-2 ring-offset-jet; }
+  ::selection { @apply bg-cyan/40 text-ink-primary; }
+}
+
+@layer components {
+  .button-sheen { position: relative; overflow: hidden; }
+  .button-sheen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+  .button-sheen:hover::before { left: 100%; }
+}
+
+@layer utilities {
+  .perspective-1000 { perspective: 1000px; }
+  .preserve-3d { transform-style: preserve-3d; }
+  .backface-hidden { backface-visibility: hidden; }
+  .transform-gpu { transform: translateZ(0); will-change: transform; }
+}

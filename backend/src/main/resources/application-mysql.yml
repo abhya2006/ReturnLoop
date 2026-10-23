@@ -1,0 +1,34 @@
+# Local MySQL profile. Supply DB_USERNAME and DB_PASSWORD in the environment.
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/returnloop?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+  flyway:
+    enabled: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+returnloop:
+  seed:
+    enabled: true
+  messaging:
+    kafka:
+      enabled: false
+
+management:
+  health:
+    redis:
+      enabled: false
+    kafka:
+      enabled: false

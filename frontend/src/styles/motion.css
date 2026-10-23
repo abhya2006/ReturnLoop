@@ -1,0 +1,376 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Motion layer
+   A single vocabulary of movement for the whole product. Everything here is
+   opt-out via prefers-reduced-motion at the bottom of the file.
+
+   Timing: 180ms for feedback on touch/hover, 420ms for enter, 620ms for
+   large surfaces. The easing is a "settle" curve — fast out, soft landing.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+  /* Landing page arrival and ambient hero light. */
+  .landing-enter {
+    animation: landing-arrive 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .landing-enter-visual {
+    animation-delay: 140ms;
+  }
+
+  .hero-orb-cyan { animation: orb-drift 13s ease-in-out infinite alternate; }
+  .hero-orb-rose { animation: orb-drift 16s ease-in-out infinite alternate-reverse; }
+  .hero-orb-violet { animation: orb-drift 18s ease-in-out infinite alternate; }
+
+  /* ── Reveal on scroll ────────────────────────────────────────────────────── */
+
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    transition:
+      opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .reveal.is-revealed {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
+  }
+
+  /* Variants that reveal from a direction */
+  .reveal-left  { transform: translate3d(-26px, 0, 0); }
+  .reveal-right { transform: translate3d(26px, 0, 0); }
+  .reveal-scale { transform: scale(0.965); }
+
+  .reveal-left.is-revealed,
+  .reveal-right.is-revealed { transform: translate3d(0, 0, 0); }
+  .reveal-scale.is-revealed { transform: scale(1); }
+
+  /* Legacy alias kept so existing landing markup keeps working. */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* ── Stagger ─────────────────────────────────────────────────────────────── */
+
+  /* Children rise in sequence. Set --stagger-step on the parent to tune it. */
+  .stagger > * {
+    animation: rise-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--stagger-index, 0) * var(--stagger-step, 55ms));
+  }
+
+  /* The dashboard's own children carry `.reveal`, so this only sequences them;
+     the actual fade/rise is applied by the reveal rules. */
+  .dashboard-stagger > *:nth-child(1) { --reveal-delay: 0ms; }
+  .dashboard-stagger > *:nth-child(2) { --reveal-delay: 70ms; }
+  .dashboard-stagger > *:nth-child(3) { --reveal-delay: 130ms; }
+  .dashboard-stagger > *:nth-child(4) { --reveal-delay: 190ms; }
+  .dashboard-stagger > *:nth-child(5) { --reveal-delay: 250ms; }
+  .dashboard-stagger > *:nth-child(6) { --reveal-delay: 300ms; }
+  .dashboard-stagger > *:nth-child(7) { --reveal-delay: 350ms; }
+  .dashboard-stagger > *:nth-child(n + 8) { --reveal-delay: 400ms; }
+
+  /* ── Page transitions ────────────────────────────────────────────────────── */
+
+  .page-enter {
+    animation: page-enter 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Only the page heading gets its own entrance. Section-level children are
+     owned by `.reveal` / `.dashboard-stagger`, and animating them here as well
+     would fight those for opacity. */
+  .page-enter > div > div:first-child {
+    animation: rise-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* ── Interactive lift ────────────────────────────────────────────────────── */
+
+  /* The one hover language for cards and links across the product. */
+  .lift {
+    transition:
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 240ms ease,
+      box-shadow 240ms ease,
+      background-color 240ms ease;
+  }
+
+  .lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* KPI tiles: a touch more travel plus a shine on the top edge */
+  .kpi-tile {
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms ease,
+      box-shadow 260ms ease;
+  }
+
+  .kpi-tile:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--cerulean) / 0.45);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+      0 26px 50px -30px rgb(var(--cerulean) / 0.55);
+  }
+
+  .kpi-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 260ms ease;
+    background: radial-gradient(
+      400px circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgb(var(--cerulean) / 0.12),
+      transparent 62%
+    );
+  }
+
+  .kpi-tile:hover::after {
+    opacity: 1;
+  }
+
+  /* ── Value count-up ──────────────────────────────────────────────────────── */
+
+  .count-up {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    transition: filter 400ms ease;
+  }
+
+  /* ── Chart entrance ──────────────────────────────────────────────────────── */
+
+  .chart-enter {
+    animation: chart-fade 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 120ms;
+  }
+
+  /* Recharts draws its series with stroke-dash animation on mount. */
+  .chart-enter .recharts-surface {
+    overflow: visible;
+  }
+
+  /* ── Table row entrance ──────────────────────────────────────────────────── */
+
+  .rows-enter tbody tr {
+    animation: row-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .rows-enter tbody tr:nth-child(1) { animation-delay: 20ms; }
+  .rows-enter tbody tr:nth-child(2) { animation-delay: 55ms; }
+  .rows-enter tbody tr:nth-child(3) { animation-delay: 90ms; }
+  .rows-enter tbody tr:nth-child(4) { animation-delay: 125ms; }
+  .rows-enter tbody tr:nth-child(5) { animation-delay: 160ms; }
+  .rows-enter tbody tr:nth-child(6) { animation-delay: 195ms; }
+  .rows-enter tbody tr:nth-child(n + 7) { animation-delay: 225ms; }
+
+  /* ── List items ──────────────────────────────────────────────────────────── */
+
+  .list-enter > * {
+    animation: row-in 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .list-enter > *:nth-child(1) { animation-delay: 30ms; }
+  .list-enter > *:nth-child(2) { animation-delay: 70ms; }
+  .list-enter > *:nth-child(3) { animation-delay: 110ms; }
+  .list-enter > *:nth-child(4) { animation-delay: 150ms; }
+  .list-enter > *:nth-child(n + 5) { animation-delay: 185ms; }
+
+  /* ── Ambient movement ────────────────────────────────────────────────────── */
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2.6s ease-in-out infinite;
+  }
+
+  .float-slow {
+    animation: float-y 7s ease-in-out infinite;
+  }
+
+  .glow-breathe {
+    animation: glow-breathe 7s ease-in-out infinite;
+  }
+
+  /* ── Sidebar + nav micro-interactions ────────────────────────────────────── */
+
+  .nav-item {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      padding-left 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-item:hover {
+    padding-left: calc(var(--nav-pad, 0.75rem) + 2px);
+  }
+
+  .nav-badge-pop {
+    animation: badge-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+  .button-press:active {
+    transform: scale(0.975);
+  }
+
+  /* ── Theme cross-fade ────────────────────────────────────────────────────── */
+
+  /* Theme switches repaint colours; fading the overlay avoids a hard flash. */
+  .theme-transition,
+  .theme-transition * {
+    transition:
+      background-color 320ms ease,
+      border-color 320ms ease,
+      color 320ms ease,
+      fill 320ms ease,
+      stroke 320ms ease !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+
+@keyframes fade-only {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes landing-arrive {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes orb-drift {
+  from { transform: translate3d(-10px, 4px, 0) scale(0.98); }
+  to   { transform: translate3d(14px, -12px, 0) scale(1.04); }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes row-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes chart-fade {
+  from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.99); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.9); }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.06); }
+}
+
+@keyframes badge-pop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes draw-line {
+  from { stroke-dashoffset: var(--dash, 1200); }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Reduced motion: keep the layout, drop the movement ──────────────────── */
+
+/* Motion-averse users still get a sense of arrival — a short fade with no
+   travel. Vestibular triggers (movement, scale, parallax) are removed; opacity
+   alone is considered safe by the WCAG motion guidance. */
+@media (prefers-reduced-motion: reduce) {
+  .landing-enter,
+  .hero-orb-cyan,
+  .hero-orb-rose,
+  .hero-orb-violet {
+    animation: none !important;
+  }
+
+  .reveal,
+  .scroll-reveal {
+    opacity: 0;
+    transform: none;
+    transition: opacity 220ms ease-out;
+    transition-delay: 0ms;
+  }
+
+  .reveal.is-revealed,
+  .scroll-reveal.is-visible {
+    opacity: 1;
+  }
+
+  .dashboard-stagger > * {
+    --reveal-delay: 0ms;
+  }
+
+  .page-enter {
+    animation: fade-only 220ms ease-out both;
+  }
+
+  .page-enter > div > div:first-child {
+    animation: none;
+  }
+
+  .chart-enter {
+    animation: fade-only 240ms ease-out both;
+  }
+
+  /* Rows and list items appear without sliding. */
+  .rows-enter tbody tr,
+  .list-enter > * {
+    animation: fade-only 200ms ease-out both;
+    animation-delay: 0ms;
+  }
+
+  /* Ambient loops are decorative — stop them entirely. */
+  .animate-pulse-soft,
+  .float-slow,
+  .glow-breathe,
+  .nav-badge-pop {
+    animation: none !important;
+  }
+
+  /* Hover states still respond, just without the travel. */
+  .lift:hover,
+  .kpi-tile:hover {
+    transform: none;
+  }
+
+  .nav-item:hover {
+    padding-left: var(--nav-pad, 0.75rem);
+  }
+
+  /* Colour cross-fades are not motion; keep them so theme switches do not flash. */
+}
